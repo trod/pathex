@@ -5,6 +5,21 @@ defmodule Pathex.QuotedParser do
   import Pathex.Common, only: [is_var: 1]
   alias Pathex.Operations
 
+  @spec parse(List.t(), Macro.Env.t(), Pathex.mod()) :: {[Macro.t()], Pathex.Combination.t()}
+  def parse(list, env, mod) when is_list(list) do
+    {binds, combination} =
+      list
+      |> parse_composition(:/)
+      |> List.flatten()
+      |> Enum.map(&Macro.expand(&1, env))
+      |> Enum.map(&detect_quoted/1)
+      |> Enum.unzip()
+
+    binds = Enum.reject(binds, &is_nil/1)
+    combination = Operations.filter_combination(combination, mod)
+    {binds, combination}
+  end
+  
   @spec parse(Macro.t(), Macro.Env.t(), Pathex.mod()) :: {[Macro.t()], Pathex.Combination.t()}
   def parse(quoted, env, mod) do
     {binds, combination} =

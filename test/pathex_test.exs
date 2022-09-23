@@ -8,6 +8,21 @@ defmodule PathexTest do
 
   @compile :nowarn_unused_vars
 
+  test "view: list path: binary" do
+    path = path(["hey"])
+    assert {:ok, true} = view(%{"hey" => true}, path)
+  end
+
+  test "view: list path: atom" do
+    path = path([:a, :b])
+    assert {:ok, 2} = view(%{a: %{b: 2} }, path)
+  end
+
+  test "view: list path: integer" do
+    path = path([1])
+    assert {:ok, :x} = view(%{1 => :x}, path)
+  end
+
   test "view: naive path: binary" do
     path = path("hey")
     assert {:ok, true} = view(%{"hey" => true}, path)
